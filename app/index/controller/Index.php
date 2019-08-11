@@ -170,58 +170,58 @@ print_r($ql);die;
         set_time_limit(0);
         $this->since_id = $since_id;
         $url = "https://m.weibo.cn/api/container/getIndex?containerid=1008088e29cdcebbc389732e994b36db14d085_-_feed&luicode=10000011&lfid=1008088e29cdcebbc389732e994b36db14d085&since_id=$since_id";
-
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; rv:21.0) Gecko/20100101 Firefox/21.0');
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 0);
-        curl_setopt($curl, CURLOPT_AUTOREFERER, 0);
-        curl_setopt($curl, CURLOPT_HTTPGET, 0);
-//curl_setopt($curl, CURLOPT_COOKIEFILE, $this->_cookie); // 如果是需要登陆才能采集的话,需要加上你登陆后得到的cookie文件
-        curl_setopt($curl, CURLOPT_TIMEOUT, 0); // 设置超时限制防止死循环
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0); // 在发起连接前等待的时间，如果设置为0，则无限等待。
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT_MS, 0); // 尝试连接等待的时间，以毫秒为单位。如果设置为0，则无限等待。
-        curl_setopt($curl, CURLOPT_HEADER, 0);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $tmp_get = curl_exec($curl);
-
-        try{
-            if (empty($tmp_get)){
-                $tmp_get   = file_get_contents($url);
-            }
-        }catch (Exception $e){
-            $this->handleTopicWeiBo($this->since_id);
-        }
+        $tmp_get   = file_get_contents($url);
+//        $curl = curl_init();
+//        curl_setopt($curl, CURLOPT_URL, $url);
+//        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+//        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+//        curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; rv:21.0) Gecko/20100101 Firefox/21.0');
+//        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 0);
+//        curl_setopt($curl, CURLOPT_AUTOREFERER, 0);
+//        curl_setopt($curl, CURLOPT_HTTPGET, 0);
+////curl_setopt($curl, CURLOPT_COOKIEFILE, $this->_cookie); // 如果是需要登陆才能采集的话,需要加上你登陆后得到的cookie文件
+//        curl_setopt($curl, CURLOPT_TIMEOUT, 0); // 设置超时限制防止死循环
+//        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0); // 在发起连接前等待的时间，如果设置为0，则无限等待。
+//        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT_MS, 0); // 尝试连接等待的时间，以毫秒为单位。如果设置为0，则无限等待。
+//        curl_setopt($curl, CURLOPT_HEADER, 0);
+//        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+//        $tmp_get = curl_exec($curl);
+//
+//        try{
+//            if (empty($tmp_get)){
+//                $tmp_get   = file_get_contents($url);
+//            }
+//        }catch (Exception $e){
+//            $this->handleTopicWeiBo($this->since_id);
+//        }
         $tmp       = json_decode($tmp_get, true);
         $filter    = $tmp['data'];
         $time_data = $filter['cards'];
         foreach ($time_data as $k => $v){
             $txt = '';
             foreach ($v['card_group'] as $_k => $_v){
-                if (strtotime($_v['mblog']['latest_update']) > strtotime('2019-06') && strtotime($_v['mblog']['latest_update']) < strtotime('2019-07')){
-                    if (empty($myfile)){
-                        $myfile = fopen('ferre-'.date('Y-m-d H-i-s',strtotime($_v['mblog']['latest_update'])).'.txt', "w");
-                    }
-                    $txt .= 'Title: '.strip_tags($_v['mblog']['text']);
-                    $txt .= 'Time: '.$_v['mblog']['created_at'];
-                    fwrite($myfile, $txt);
-                }
-                if (strstr($_v['mblog']['created_at'], '2018')){
-                    if (strtotime($_v['mblog']['created_at']) > strtotime('2018-06') && strtotime($_v['mblog']['created_at']) < strtotime('2018-09')){  //18年
+                if (!empty($_v['mblog']['latest_update'])){
+                    if (strtotime($_v['mblog']['latest_update']) > strtotime('2019-06') && strtotime($_v['mblog']['latest_update']) < strtotime('2019-07')){
                         if (empty($myfile)){
                             $myfile = fopen('ferre-'.date('Y-m-d H-i-s',strtotime($_v['mblog']['latest_update'])).'.txt', "w");
                         }
                         $txt .= 'Title: '.strip_tags($_v['mblog']['text']);
                         $txt .= 'Time: '.$_v['mblog']['created_at'];
-                        fwrite($myfile, $txt);
+                        @fwrite($myfile, $txt);
                     }
-                }
-                if (strtotime($_v['mblog']['latest_update']) < strtotime('2018-05-31')){
-                    echo '超过时间节点';die;
-                }
-                if (!empty($myfile)){
+                    if (strstr($_v['mblog']['created_at'], '2018')){
+                        if (strtotime($_v['mblog']['created_at']) > strtotime('2018-06') && strtotime($_v['mblog']['created_at']) < strtotime('2018-09')){  //18年
+                            if (empty($myfile)){
+                                $myfile = fopen('ferre-'.date('Y-m-d H-i-s',strtotime($_v['mblog']['latest_update'])).'.txt', "w");
+                            }
+                            $txt .= 'Title: '.strip_tags($_v['mblog']['text']);
+                            $txt .= 'Time: '.$_v['mblog']['created_at'];
+                            @fwrite($myfile, $txt);
+                        }
+                    }
+                    if (strtotime($_v['mblog']['latest_update']) < strtotime('2018-05-31')){
+                        echo '超过时间节点';die;
+                    }
                     @fclose($myfile);
                 }
             }
