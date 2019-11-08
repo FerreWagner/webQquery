@@ -17,9 +17,6 @@ class Wed extends Controller
         $ql = QueryList::get($url);
         $module = $ql->find('.hotel-item')->html();
 
-//        $assd = $ql->rules(['title' => ['.hotel-header-title'], 'area' => ['.hotel-header-date']])->query()->getData();
-//        $assd = $ql->rules(['area' => ['.hotel-header-date']])->query()->getData();
-
         $rules = [
             'title' => ['.hotel-header-title>p>a','text'],  //标题
             'money' => ['.hotel-header-price','text'],  //价格
@@ -49,7 +46,6 @@ class Wed extends Controller
             foreach ($son_tmp[$k]['menu'] as $_k => $_v){
                 $son_tmp[$k]['menu'][$_k]['menu_list'] = str_replace(['<span>','</span>'], '-', $_v['menu_list']);
             }
-//            die(json_encode($son_tmp[$k]['menu']));
         }
         $txt_data = [['分词', '次数', '权重']];   //初始化
 
